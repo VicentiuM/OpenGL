@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">OpenGL</string>
+    <string name="button_send">Check Version</string>
+    <string name="edit_message">Ceva</string>
+</resources>
