@@ -11,6 +11,7 @@ import android.util.Log;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -21,6 +22,8 @@ class GLES20Renderer implements GLSurfaceView.Renderer {
     private Cube cube1;
     private Cube cube2;
     private Square sqr;
+
+    private ArrayList<Cube> cubes = new ArrayList<Cube>();
 
     private float[] mAccData = new float[3];
     private float[] mMagData = new float[3];
@@ -36,6 +39,9 @@ class GLES20Renderer implements GLSurfaceView.Renderer {
 
 
     public volatile float angle;
+
+    public boolean created = false;
+    public boolean drawable = false;
 /*
     public GLES20Renderer(Camera camera, SurfaceHolder holder) {
         mCamera = camera;
@@ -46,6 +52,7 @@ class GLES20Renderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         float[] scratch = new float[16];
+        float[] scratch1 = new float[16];
 
         //GLES20.glClearColor(.7f, .3f, .1f, .0f);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
@@ -65,7 +72,10 @@ class GLES20Renderer implements GLSurfaceView.Renderer {
 
         //Ca sa nu mai fie rotatie
         //Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-        scratch = mMVPMatrix;
+
+
+
+
 
 /*
         System.out.println("===================");
@@ -77,7 +87,37 @@ class GLES20Renderer implements GLSurfaceView.Renderer {
 */
         // Draw shape
         //tri.draw(scratch);
-        cube1.draw(scratch);
+
+        if (created) {
+            created = false;
+            drawable = true;
+
+            float sqrcoords1[] = {
+                    0.5f, 1.5f, 1.5f,   // top left front
+                    0.5f, 0.5f, 1.5f,   // bottom left front
+                    1.5f, 0.5f, 1.5f,   // bottom right front
+                    1.5f, 1.5f, 1.5f,  // top right front
+
+                    0.5f, 1.5f, 0.5f,   // top left back
+                    0.5f, 0.5f, 0.5f,   // bottom left back
+                    1.5f, 0.5f, 0.5f,   // bottom right back
+                    1.5f, 1.5f, 0.5f  // top right back
+            };
+            short drorder[] = { 0, 1, 2, 0, 2, 3, 4, 0, 3, 4, 3, 7, 4, 5, 6, 4, 6, 7, 5, 1, 2, 5, 2, 6, 0, 1, 5, 0, 5, 4, 3, 2, 6, 3, 6, 7 };
+            float color1[] = { (float) Math.random(), (float) Math.random(), (float) Math.random(), 1.0f };
+            cube1 = new Cube(sqrcoords1, drorder, color1);
+        }
+        if (drawable) {
+            Matrix.multiplyMM(scratch1, 0, mMVPMatrix, 0, cube1.mModelMatrix, 0);
+            cube1.draw(scratch1);
+        }
+
+        for (Cube cube : cubes) {
+            Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, cube.mModelMatrix, 0);
+            cube.draw(scratch);
+        }
+
+        scratch = mMVPMatrix;
         cube2.draw(scratch);
         sqr.draw(scratch);
     }
@@ -94,25 +134,14 @@ class GLES20Renderer implements GLSurfaceView.Renderer {
         // it is used to determine what objects to be rendered(if they are too far)
         Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
 
+
+
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         //tri = new Triangle();
-        float sqrcoords1[] = {
-                0.5f, 1.5f, 1.5f,   // top left front
-                0.5f, 0.5f, 1.5f,   // bottom left front
-                1.5f, 0.5f, 1.5f,   // bottom right front
-                1.5f, 1.5f, 1.5f,  // top right front
 
-                0.5f, 1.5f, 0.5f,   // top left back
-                0.5f, 0.5f, 0.5f,   // bottom left back
-                1.5f, 0.5f, 0.5f,   // bottom right back
-                1.5f, 1.5f, 0.5f  // top right back
-        };
-        short drorder[] = { 0, 1, 2, 0, 2, 3, 4, 0, 3, 4, 3, 7, 4, 5, 6, 4, 6, 7, 5, 1, 2, 5, 2, 6, 0, 1, 5, 0, 5, 4, 3, 2, 6, 3, 6, 7 };
-        float color1[] = { 0.3f, 0.5f, 0.2f, 1.0f };
-        cube1 = new Cube(sqrcoords1, drorder, color1);
 
         float sqrcoords2[] = {
                 -1.5f, -0.5f, -0.5f,   // top left front
@@ -126,7 +155,11 @@ class GLES20Renderer implements GLSurfaceView.Renderer {
                 -0.5f, -0.5f, -1.5f  // top right back
         };
         float color2[] = { 0.6f, 0.2f, 0.897f, 1.0f };
+        short drorder[] = { 0, 1, 2, 0, 2, 3, 4, 0, 3, 4, 3, 7, 4, 5, 6, 4, 6, 7, 5, 1, 2, 5, 2, 6, 0, 1, 5, 0, 5, 4, 3, 2, 6, 3, 6, 7 };
+
+
         cube2 = new Cube(sqrcoords2, drorder, color2);
+
         sqr = new Square();
     }
 
@@ -192,4 +225,28 @@ class GLES20Renderer implements GLSurfaceView.Renderer {
         mMagData = mag;
     }
 
+
+    /*****************PENTRU ADAUGARE DE OBIECTE***************/
+    public void addCube() {
+        created = true;
+        System.out.println("====AM ADAUGAT CUBUL====\n");
+    }
+
+    public void confirmObject() {
+        cubes.add(cube1);
+        drawable = false;
+        created = false;
+    }
+
+    /*****************PENTRU A MISCA OBIECTELE***************/
+    public void moveXLeft() {
+        Matrix.translateM(cube1.mModelMatrix, 0, 0.1f, 0f, 0f);
+    }
+    public void moveXRight() {
+        Matrix.translateM(cube1.mModelMatrix, 0, -0.1f, 0f, 0f);
+    }
+    public void moveYLeft(){ Matrix.translateM(cube1.mModelMatrix, 0, 0f, 0.1f, 0f); }
+    public void moveYRight(){ Matrix.translateM(cube1.mModelMatrix, 0, 0f, -0.1f, 0f); }
+    public void moveZLeft(){ Matrix.translateM(cube1.mModelMatrix, 0, 0f, 0f, 0.1f); }
+    public void moveZRight(){ Matrix.translateM(cube1.mModelMatrix, 0, 0f, 0f, -0.1f); }
 }

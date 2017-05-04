@@ -1,6 +1,7 @@
 package com.example.vic.opengl;
 
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -14,12 +15,18 @@ import static com.example.vic.opengl.Triangle.triangleCoords;
  */
 
 public class Cube {
+
+    public boolean created = false;
+    public boolean drawable = false;
+
     private final FloatBuffer vertexBuffer;
     private final ShortBuffer drawListBuffer;
     private final int shaderProgram;
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
+
+    public float[] mModelMatrix = new float[16];
 
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
@@ -78,6 +85,8 @@ public class Cube {
         cubeCoords = cbcoords;
         drawOrder = drorder;
         color = clr;
+
+        Matrix.setIdentityM(mModelMatrix, 0);
 
         // initialize vertex byte buffer for shape coordinates
         ByteBuffer bb = ByteBuffer.allocateDirect(
@@ -160,4 +169,5 @@ public class Cube {
         GLES20.glDisableVertexAttribArray(mPositionHandle);
 
     }
+
 }

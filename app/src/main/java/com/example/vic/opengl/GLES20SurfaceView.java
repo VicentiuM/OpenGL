@@ -151,4 +151,20 @@ public class GLES20SurfaceView extends GLSurfaceView implements SensorEventListe
 
     }
 
+    public void addCube() {
+        System.out.println("====ADAUG CUBUL====\n");
+        myRenderer.addCube();
+
+    }
+
+    public void moveXLeft() { myRenderer.moveXLeft(); }
+    public void moveXRight() { myRenderer.moveXRight (); }
+    public void moveYLeft() { myRenderer.moveYLeft(); }
+    public void moveYRight() { myRenderer.moveYRight (); }
+    public void moveZLeft() { myRenderer.moveZLeft(); }
+    public void moveZRight() { myRenderer.moveZRight (); }
+
+    public void confirmObject() {
+        myRenderer.confirmObject();
+    }
 }
